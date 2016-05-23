@@ -6,3 +6,5 @@
 /configure
 /m4
 Makefile.in
+*.out
+*test.c
