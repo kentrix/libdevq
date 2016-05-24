@@ -26,6 +26,10 @@ struct devq_device {
 	char *dev_path;
 };
 
+/**
+ * @brief Helper method to create a device representation from a sane path
+ *
+ */
 static struct devq_device *devq_device_new_common(char *path) {
 	
 	// Path should be sane
@@ -79,9 +83,12 @@ struct devq_device *devq_device_new_from_full_path(char *full_path) {
 
 }
 
+/**
+ * @brief Create a new devq_device struct with the full path to the device.
+ * @see devq_device_new_from_dev_path
+ * @param full_path The full path to device
+ */
 struct devq_device *devq_device_new_from_fd(int fd) {
-
-
 #if defined(HAVE_LIBPROCSTAT_H)
 	int ret;
 	struct procstat *procstat;
@@ -170,6 +177,11 @@ out:
 
 
 
+/**
+ * @brief Create a new devq_device struct with a /dev/ path.
+ * @see devq_device_new_from_full_path
+ * @param dev_path The path to device in devfs
+ */
 struct devq_device *devq_device_new_from_dev_path(char *dev_path) {
 	// /dev/
 	char *full_path;
@@ -182,12 +194,16 @@ struct devq_device *devq_device_new_from_dev_path(char *dev_path) {
 	strcpy(full_path, "/dev/");
 	strcat(full_path, dev_path);
 
+	DBG("new device from (dev_path). full_path -> %s\n", full_path);
+
 	return devq_device_new_from_full_path(full_path);
 
 }
 
-
-
+/**
+ * @brief Get the full path to the device.
+ * @param device A pointer to a devq_device
+ */
 char *devq_device_get_dev_path(struct devq_device *device) {
 	char *ret;
 	size_t len = strlen(device->dev_path);
@@ -204,8 +220,7 @@ char *devq_device_get_dev_path(struct devq_device *device) {
 
 }
 
-int devq_device_free(struct devq_device *device) {
+void devq_device_free(struct devq_device *device) {
 	free(device->dev_path);
 	free(device);
-	return 0;
 }

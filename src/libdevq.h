@@ -26,5 +26,9 @@ typedef enum {
 } devq_device_t;
 
 struct devq_device *devq_device_new_from_fd(int fd);
+struct devq_device *devq_device_new_from_full_path(char *full_path);
+struct devq_device *devq_device_new_from_dev_path(char *dev_path);
+char *devq_device_get_dev_path(struct devq_device *dev);
+void devq_device_free(struct devq_device *dev);
 
 #endif /* _HAVE_LIBDEVQ_ */
