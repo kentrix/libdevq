@@ -9,6 +9,7 @@
 #include <fcntl.h>
 #include <stddef.h>
 #include <dirent.h>
+//TODO clean up
 
 #if defined(HAVE_LIBPROCSTAT_H)
 # include <sys/param.h>
@@ -23,16 +24,12 @@
 
 struct devq_device {
 	char *dev_path;
-	char *name;
-	char *vendor_id;
-	char *device_id;
-	char *sysctl_node;
-	devq_device_t type;
 };
 
 static struct devq_device *devq_device_new_common(char *path) {
 	
 	// Path should be sane
+	DBG("new_common from %s\n", path);
 
 	struct devq_device *new_dev;
 	char *tmp_str;
@@ -43,17 +40,16 @@ static struct devq_device *devq_device_new_common(char *path) {
 		return NULL;
 	}
 
-	//TODO define a marco perhaps
 	tmp_str = malloc(sizeof(char) * strlen(path));
 	if (tmp_str != NULL) {
 		errno = ENOMEM;
 		return NULL;
 	}
+
 	strcpy(tmp_str, path);
 
 	new_dev->dev_path = tmp_str;
 
-	//TODO finish this
 	
 
 	return new_dev;
@@ -153,75 +149,22 @@ out:
 		return NULL;
 	}
 
-	if(!S_ISCHR(st.st_mode)) {
+	if(!S_ISCHR(st.st_mode) || st.st_rdev <= (dev_t)0) {
 		errno = EBADF;
 		return NULL;
 	}
 
-	// Use st_inode and st_dev to determine the path?
-	// Walk through all of /dev/
-	// TODO find devpath from fd
-	//
 
-	// Walk only /dev/*/ for da/ada no follow link
-	//
-	char tmp_path[256];
-	int found;
-	size_t tmp_path_len;
+	char tmp_path[128];
+	char full_path[128];
 
-	found = 0;
+	devname_r(st.st_rdev, S_IFCHR, tmp_path, sizeof(tmp_path));
 
-	for (int i = 0; i < DICT_ENTRIES; i++) {
-		dir = opendir(walk_dict[i]);
-		if (dir == NULL) 
-			return NULL;
+	sprintf(full_path, DEV_ROOT "%s", tmp_path);
 
-		struct dirent *dirent;
+	DBG("devstat() -> %s\n", full_path);
+	return devq_device_new_common(full_path);
 
-		while((dirent = readdir(dir)) != NULL) {
-			struct stat tmp_st;
-
-			if(dirent->d_name[0] == '0' 
-				|| dirent->d_type == DT_DIR)
-				continue;
-
-			tmp_path_len = strlen(walk_dict[i]);
-			strcpy(tmp_path, walk_dict[i]);
-			tmp_path[tmp_path_len++] = '/';
-			tmp_path[tmp_path_len] = '\0';
-
-			strcpy(tmp_path + tmp_path_len, dirent->d_name);
-			tmp_path_len += dirent->d_namlen;
-			tmp_path[tmp_path_len] = '\0';
-
-			ret = stat(tmp_path, &tmp_st);
-			if (ret != 0)
-				continue;
-
-			if (st.st_dev  == tmp_st.st_dev &&
-				st.st_ino  == tmp_st.st_ino) {
-				found = 1;
-				break;
-			}
-		}
-		closedir(dir);
-		if(found)
-			break;
-
-	}
-
-	if(!found) {
-		errno = EBADF;
-		return NULL;
-	}
-
-	printf("%s\n", tmp_path);
-	//found
-	return devq_device_new_common(tmp_path);
-
-
-
-	return NULL;
 #endif
 }
 
@@ -245,9 +188,9 @@ struct devq_device *devq_device_new_from_dev_path(char *dev_path) {
 
 
 
-char *devq_device_get_vendor_id(struct devq_device *device) {
+char *devq_device_get_dev_path(struct devq_device *device) {
 	char *ret;
-	size_t len = strlen(device->vendor_id);
+	size_t len = strlen(device->dev_path);
 
 	ret = malloc(sizeof(char) * len);
 	if (ret == NULL) {
@@ -255,7 +198,7 @@ char *devq_device_get_vendor_id(struct devq_device *device) {
 		return NULL;
 	}
 
-	strcpy(ret, device->vendor_id);
+	strcpy(ret, device->dev_path);
 
 	return ret;
 
@@ -263,7 +206,6 @@ char *devq_device_get_vendor_id(struct devq_device *device) {
 
 int devq_device_free(struct devq_device *device) {
 	free(device->dev_path);
-	free(device->vendor_id);
 	free(device);
 	return 0;
 }
