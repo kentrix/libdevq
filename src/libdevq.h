@@ -13,7 +13,9 @@
 
 #define DEV_ROOT "/dev/"
 
+#include <sys/tree.h>
 
+RB_HEAD(devq_list, devq_list_entry);
 
 struct devq_devices;
 struct devq_devices_list;
@@ -21,9 +23,20 @@ struct devq_monitor;
 struct devq_event;
 
 typedef enum {
-	DEVQ_DEVICE_BLOCK = 1U,
-	DEVQ_DEVICE_DRM
-} devq_device_t;
+	DEVQ_DEVICE_KEYBOARD = 1U,
+	DEVQ_DEVICE_MOUSE,
+	DEVQ_DEVICE_JOYSTICK,
+	DEVQ_DEVICE_TOUCHPAD,
+	DEVQ_DEVICE_TOUCHSCREEN,
+	DEVQ_DEVICE_UNKNOWN
+} devq_subsystem_input;
+
+typedef enum {
+	DEVQ_SUBSYSTEM_INPUT = 1U,
+	DEVQ_SUBSYSTEM_UNKNOWN
+} devq_subsystem;
+
+	
 
 struct devq_device *devq_device_new_from_fd(int fd);
 struct devq_device *devq_device_new_from_full_path(char *full_path);
@@ -31,4 +44,12 @@ struct devq_device *devq_device_new_from_dev_path(char *dev_path);
 char *devq_device_get_dev_path(struct devq_device *dev);
 void devq_device_free(struct devq_device *dev);
 
+void devq_list_init(struct devq_list *list);
+int devq_list_insert(struct devq_list *list, const char *name,
+		     const char*value);
+void devq_list_free(struct devq_list *list);
+struct devq_list_entry *devq_list_entry_get_first(struct devq_list *list);
+struct devq_list_entry *devq_list_entry_get_next(struct devq_list_entry *ent);
+const char *devq_list_entry_get_name(struct devq_list_entry *ent);
+const char *devq_list_entry_get_value(struct devq_list_entry *ent);
 #endif /* _HAVE_LIBDEVQ_ */
