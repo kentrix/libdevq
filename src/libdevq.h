@@ -15,6 +15,7 @@
 
 #include <sys/tree.h>
 
+
 RB_HEAD(devq_list, devq_list_entry);
 
 struct devq_devices;
@@ -45,8 +46,7 @@ char *devq_device_get_dev_path(struct devq_device *dev);
 void devq_device_free(struct devq_device *dev);
 
 void devq_list_init(struct devq_list *list);
-int devq_list_insert(struct devq_list *list, const char *name,
-		     const char*value);
+int devq_list_insert(struct devq_list *list, const char *name, const char*value);
 void devq_list_free(struct devq_list *list);
 struct devq_list_entry *devq_list_entry_get_first(struct devq_list *list);
 struct devq_list_entry *devq_list_entry_get_next(struct devq_list_entry *ent);

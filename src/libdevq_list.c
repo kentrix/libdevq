@@ -7,10 +7,10 @@
 
 #include "libdevq.h"
 
-RB_PROTOTYPE(devq_list, devq_list_entry, link, devq_list_entry_cmpr);
+RB_PROTOTYPE(devq_list, devq_list_entry, rbt, devq_list_entry_cmpr);
 
 struct devq_list_entry {
-	RB_ENTRY(devq_list_entry) link;
+	RB_ENTRY(devq_list_entry) rbt;
 	char *value;
 	char *name;
 };
@@ -104,5 +104,5 @@ static int devq_list_entry_cmpr (struct devq_list_entry *ent1, struct devq_list_
 	return strcmp(ent1->name, ent2->name);
 }
 
-RB_GENERATE(devq_list, devq_list_entry, link, devq_list_entry_cmpr);
+RB_GENERATE(devq_list, devq_list_entry, rbt, devq_list_entry_cmpr);
 
