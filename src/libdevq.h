@@ -23,21 +23,29 @@ struct devq_devices_list;
 struct devq_monitor;
 struct devq_event;
 
+
 typedef enum {
-	DEVQ_DEVICE_KEYBOARD = 1U,
+	DEVQ_ATTACHED = 1U,
+	DEVQ_DETACHED,
+	DEVQ_NOTICE,
+	DEVQ_UNKNOWN
+} devq_event_t;
+
+typedef enum {
+	DEVQ_DEVICE_UNKNOWN = 1U,
+	DEVQ_DEVICE_KEYBOARD,
 	DEVQ_DEVICE_MOUSE,
 	DEVQ_DEVICE_JOYSTICK,
 	DEVQ_DEVICE_TOUCHPAD,
-	DEVQ_DEVICE_TOUCHSCREEN,
-	DEVQ_DEVICE_UNKNOWN
-} devq_subsystem_input;
+	DEVQ_DEVICE_TOUCHSCREEN
+} devq_device_t;
 
 typedef enum {
-	DEVQ_SUBSYSTEM_INPUT = 1U,
-	DEVQ_SUBSYSTEM_UNKNOWN
-} devq_subsystem;
+	DEVQ_CLASS_UNKNOWN = 1U,
+	DEVQ_CLASS_INPUT
+} devq_class_t;
 
-	
+
 
 struct devq_device *devq_device_new_from_fd(int fd);
 struct devq_device *devq_device_new_from_full_path(char *full_path);
